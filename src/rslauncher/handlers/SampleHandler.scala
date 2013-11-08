@@ -73,6 +73,7 @@ class SampleHandler extends AbstractHandler {
 					}
 				})
 
+				
 				val source = builder.toString()
 				interpreter.execScript(source)
 			}
