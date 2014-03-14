@@ -21,6 +21,9 @@ import rscore.dsl.entity.RSProject
 import rscore.util.FileUtil
 import org.eclipse.core.resources.IFile
 
+import rscore.interpreter.ScalaInterpreterA
+import rscore.interpreter.ScalaCompiler
+
 class SampleHandler extends AbstractHandler {
 	private val ScriptExtension = "rsl"
 
@@ -47,39 +50,56 @@ class SampleHandler extends AbstractHandler {
 
 				val is = file.getContents()
 				val sourceString = FileUtil.getContentsFromInputStream(is)
-				val lines = sourceString.split("""\n""")
-
-				val interpreter = RSInterpreter
-				interpreter.initContainer()
-
-				val builder = new StringBuilder
-
-				lines.foreach(line => {
-					// 特殊行の処理
-					// ランタイム変数（%CURRENT_PROJECT など）
-					if (line.indexOf(":=") != -1) {
-						val vs = line.split(""":=""")
-						assert(vs.length == 2)
-						val lv = vs.first.replaceAll("""\s*""", "")
-						val rv = vs.last.replaceAll("""\s*""", "")
-
-						if (rv == """%CURRENT_PROJECT""") {
-							val currentProject = getCurrentProject(file)
-							interpreter.assignVariable(lv, currentProject)
-						}
-					} else {
-						// 文字列置換などはここで
-						builder.append(ScriptHelper.prepareScript(line) + "\n")
-					}
-				})
-
+//				val lines = sourceString.split("""\n""")
 				
-				val source = builder.toString()
-				interpreter.execScript(source)
+				// Test ScalaCompiler
+				ScalaCompiler.runScript(sourceString)
+				println("Finished!")
+
+//				// TODO: Replace JRuby's code from here
+//				try{
+//					val interpreter = ScalaInterpreterA
+//					// /Users/young/Documents/workspace/github/RSCore/bin
+//					interpreter.initScalaInterpreter()
+//					lines.foreach(line => {
+//						interpreter.execScalaScript(line.toString())
+//					})
+//					interpreter.finalizeWriter()
+//				} catch{
+//				    case e => println(e)
+//			    		val eClass = e.getClass()
+//			    		val eName = eClass.getName()
+//			    		println(eName)
+//				}
+				
+				
+//				val interpreter = RSInterpreter
+//				interpreter.initContainer()
+//
+//				val builder = new StringBuilder
+//
+//				lines.foreach(line => {
+//					// 特殊行の処理
+//					// ランタイム変数（%CURRENT_PROJECT など）
+//					if (line.indexOf(":=") != -1) {
+//						val vs = line.split(""":=""")
+//						assert(vs.length == 2)
+//						val lv = vs.first.replaceAll("""\s*""", "")
+//						val rv = vs.last.replaceAll("""\s*""", "")
+//
+//						if (rv == """%CURRENT_PROJECT""") {
+//							val currentProject = getCurrentProject(file)
+//							interpreter.assignVariable(lv, currentProject)
+//						}
+//					} else {
+//						// 文字列置換などはここで
+//						builder.append(ScriptHelper.prepareScript(line) + "\n")
+//					}
+//				})
+//				val source = builder.toString()
+//				interpreter.execScript(source)
 			}
-
 		}
-
 		val window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		MessageDialog.openInformation(
 			window.getShell(),
